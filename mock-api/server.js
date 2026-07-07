@@ -8,6 +8,7 @@ let accounts = {
   "acc_002": { id: "acc_002", owner: "Jane Smith", balance: 3000 },
 };
 
+// 1. Create payment
 app.post('/payments', (req, res) => {
   const { amount, currency, account_id } = req.body;
   if (!amount || amount <= 0)
@@ -24,37 +25,55 @@ app.post('/payments', (req, res) => {
   res.status(201).json(payments[id]);
 });
 
+// 2. Get payment
 app.get('/payments/:id', (req, res) => {
   const payment = payments[req.params.id];
   if (!payment) return res.status(404).json({ error: "Payment not found" });
   res.json(payment);
 });
 
+// 3. Refund
 app.post('/refunds', (req, res) => {
   const { payment_id, amount } = req.body;
+  if (!payment_id)
+    return res.status(400).json({ error: "payment_id is required" });
   const payment = payments[payment_id];
-  if (!payment) return res.status(404).json({ error: "Payment not found" });
+  if (!payment)
+    return res.status(404).json({ error: "Payment not found" });
+  if (!amount || amount <= 0)
+    return res.status(400).json({ error: "Invalid refund amount" });
   if (amount > payment.amount)
     return res.status(400).json({ error: "Refund exceeds original payment" });
   accounts[payment.account_id].balance += amount;
-  res.status(201).json({ id: "ref_" + Date.now(), payment_id, amount, status: "refunded" });
+  res.status(201).json({
+    id: "ref_" + Date.now(), payment_id, amount, status: "refunded"
+  });
 });
 
+// 4. Get account
 app.get('/accounts/:id', (req, res) => {
   const account = accounts[req.params.id];
   if (!account) return res.status(404).json({ error: "Account not found" });
   res.json(account);
 });
 
+// 5. Transfer
 app.post('/transfers', (req, res) => {
   const { from_account, to_account, amount } = req.body;
+  if (!from_account || !to_account)
+    return res.status(400).json({ error: "Account not found" });
+  if (!amount || amount <= 0)
+    return res.status(400).json({ error: "Invalid transfer amount" });
   if (!accounts[from_account] || !accounts[to_account])
     return res.status(404).json({ error: "Account not found" });
   if (accounts[from_account].balance < amount)
     return res.status(400).json({ error: "Insufficient funds" });
   accounts[from_account].balance -= amount;
   accounts[to_account].balance   += amount;
-  res.status(200).json({ status: "success", from: from_account, to: to_account, amount });
+  res.status(200).json({
+    status: "success", from: from_account, to: to_account, amount
+  });
 });
 
-app.listen(3000, () => console.log("✅ Mock FinTech API running → http://localhost:3000"));
+app.listen(3000, () =>
+  console.log("✅ Mock FinTech API running → http://localhost:3000"));
