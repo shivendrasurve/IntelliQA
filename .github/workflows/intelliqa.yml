@@ -1,0 +1,57 @@
+name: IntelliQA — AI Test Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  intelliqa-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Mock API dependencies
+        run: cd mock-api && npm install
+
+      - name: Start Mock FinTech API
+        run: |
+          cd mock-api && node server.js &
+          sleep 3
+
+      - name: Verify Mock API is running
+        run: curl -f http://localhost:3000/accounts/acc_001
+
+      - name: Run AI Risk Prioritisation
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python3 ai-engine/risk_analyser.py
+
+      - name: Run Prioritised Test Suite
+        run: |
+          mkdir -p test-results
+          pytest test-suite/api-tests/ -v --tb=short \
+            --junit-xml=test-results/results.xml
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: intelliqa-test-results
+          path: test-results/

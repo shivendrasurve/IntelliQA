@@ -146,3 +146,8 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 >>>>>>> d78e8942c5e84cb3bb66a18545219f2094e9ac05
+__pycache__/
+*.pyc
+.pytest_cache/
+test-results/*.xml
+node_modules/
