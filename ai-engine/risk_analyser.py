@@ -70,7 +70,7 @@ REASON: <one sentence>
 Be concise. No other text.
 """
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="qwen/qwen3.6-27b",
         messages=[
             {"role": "system", "content": "You are a senior QA engineer. Be concise and precise."},
             {"role": "user",   "content": prompt}

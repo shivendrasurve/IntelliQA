@@ -41,7 +41,7 @@ def get_error(output, test):
 def ai_analyse(test, error_lines):
     error_text = "\n".join(error_lines) if error_lines else "No error details captured"
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="qwen/qwen3.6-27b",
         messages=[
             {"role": "system", "content": "You are a senior QA engineer. Be concise."},
             {"role": "user", "content": f"""Failed test: {test}

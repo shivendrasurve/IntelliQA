@@ -73,7 +73,7 @@ STRICT RULES:
 Generate tests for: {endpoint_name}
 """
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="qwen/qwen3.6-27b",
         messages=[
             {"role": "system", "content": "You are an expert test automation engineer. Output only raw executable Python code. No markdown. No backticks. No explanation."},
             {"role": "user", "content": prompt}
